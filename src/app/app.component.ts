@@ -7,6 +7,7 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
 import * as JSZip from 'jszip';
+import * as JSZipUtils from '../assets/jszip-utils';
 import { saveAs } from 'file-saver/FileSaver';
 
 class Image {
@@ -111,14 +112,18 @@ export class AppComponent {
     var theAnchor = $('<a />')  
         .attr('href', file)  
         .attr('download',file);  
-    theAnchor[0].click();   
-    theAnchor.remove();
-    let zip: JSZip = new JSZip();
-    zip.file("Hello.txt", "Hello World\n");
-    zip.generateAsync({type:"blob"})
-    .then(function(content) {
-        // see FileSaver.js
-        saveAs(content, "example.zip");
+    // theAnchor[0].click();   
+    // theAnchor.remove();
+    console.log("Current File: " + file)
+    JSZipUtils.getBinaryContent(file, function (err, data) {
+      console.log(data)
+      let zip: JSZip = new JSZip();
+      zip.file("Hello.jpeg", data);
+      zip.generateAsync({type:"blob"})
+      .then(function(content) {
+          // see FileSaver.js
+          saveAs(content, "GroupMe Images.zip");
+      });
     });
   }
 
@@ -148,3 +153,4 @@ export class AppComponent {
 // https://codecraft.tv/courses/angular/http/core-http-api/
 // https://l-lin.github.io/angular-datatables/#/welcome
 // https://github.com/Stuk/jszip-utils
+// https://stackoverflow.com/questions/41710107/jszip-only-zipping-one-of-the-two-files-from-url
