@@ -19,7 +19,7 @@ import { AppComponent } from './app.component';
     NgSelectModule,
     FormsModule,
     AgGridModule.withComponents([]),
-    DataTablesModule
+    DataTablesModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

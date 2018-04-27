@@ -6,6 +6,9 @@ import { Subject } from 'rxjs/Subject';
 
 import 'rxjs/add/operator/map';
 
+import * as JSZip from 'jszip';
+import { saveAs } from 'file-saver/FileSaver';
+
 class Image {
   date: string;
   link: string;
@@ -24,9 +27,11 @@ export class AppComponent {
   title = 'GroupMe Gallery Downloader';
   Validated: boolean = false;
   Searched: boolean = false;
+  Downloaded: boolean = false;
   Groups = [];
   SelectedGroup = {};
   Images: Image[] = [];
+  BulkImageLinks = [];
   dtOptions: DataTables.Settings = {};
   dtTrigger: Subject<any> = new Subject();
   
@@ -69,7 +74,7 @@ export class AppComponent {
     search.set('limit', "100");
     search.set('before', this.before);
     this.http.get(url, {search: search}).subscribe(res => {
-      console.log(res.json()['response']['messages'])
+      console.log(res.json()['response'])
       let ImageData = res.json()['response']['messages'];
       this.Images = ImageData;
       this.dtTrigger.next();
@@ -77,8 +82,49 @@ export class AppComponent {
     });
   }
 
+  GetAllImages() {
+    this.Downloaded = true;
+    console.log("Getting All GroupMe Gallery Images: Group ID - " + this.SelectedGroup);
+    let url = this.apiRoot + "/conversations/" + this.SelectedGroup + "/gallery";
+    let search = new URLSearchParams();
+    search.set('token', this.token);
+    search.set('limit', "100");
+    search.set('before', this.before);
+    this.http.get(url, {search: search}).subscribe(res => {
+      console.log(res.json()['response'])
+      let ImageData = res.json()['response']['messages'];
+      let ImagesAvailable = !!ImageData.length;
+      if(ImagesAvailable)
+      {
+        for(var i=0; i<ImageData.length;i++)
+        {
+          this.BulkImageLinks = [...this.BulkImageLinks, ImageData[i]['attachments'][0]['url']]
+        }
+        this.before = ImageData[ImageData.length - 1]['gallery_ts']
+        this.GetAllImages();
+      }
+    });
+  }
+
+  DownloadAllImages() {
+    let file = this.BulkImageLinks.pop();
+    var theAnchor = $('<a />')  
+        .attr('href', file)  
+        .attr('download',file);  
+    theAnchor[0].click();   
+    theAnchor.remove();
+    let zip: JSZip = new JSZip();
+    zip.file("Hello.txt", "Hello World\n");
+    zip.generateAsync({type:"blob"})
+    .then(function(content) {
+        // see FileSaver.js
+        saveAs(content, "example.zip");
+    });
+  }
+
   HideSection() {
     this.Searched = false;
+    this.Downloaded = false;
   }
 
   doPOST() {
@@ -86,6 +132,7 @@ export class AppComponent {
     let url = this.apiRoot + "/post";
     this.http.post(url, {moo:"foo",goo:"loo"}).subscribe(res => console.log(res.json()));
   }
+
 
   // doPOST() {
   //   console.log("POST");
@@ -100,3 +147,4 @@ export class AppComponent {
 
 // https://codecraft.tv/courses/angular/http/core-http-api/
 // https://l-lin.github.io/angular-datatables/#/welcome
+// https://github.com/Stuk/jszip-utils
