@@ -31,7 +31,7 @@
         <hr>
         <section [hidden]="!Downloaded">
           <ol id="DownloadLinks">
-            <li *ngFor="let link of BulkImageLinks">{{link}}</li>
+            <li *ngFor="let link of BulkImageLinks"><a href={{link}} target="_blank">{{link}}</a></li>
           </ol>
         </section>
         <hr>
