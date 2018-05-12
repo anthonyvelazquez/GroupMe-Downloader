@@ -31,8 +31,9 @@
         <hr>
         <section [hidden]="!Downloaded">
           <ol id="DownloadLinks">
-            <li *ngFor="let link of BulkImageLinks"><a href={{link}} target="_blank">{{link}}</a></li>
+            <li *ngFor="let link of BulkImageLinks"><a href={{link.attachments[0].url}} target="_blank">{{ link.favorited_by?.length || '0' }} - {{link.attachments[0].url}}</a></li>
           </ol>
+          <h4>Most Liked Post: {{FavoriteImageCount}} - <a href="{{FavoriteImage}}" target="_blank">{{FavoriteImage}}</a></h4>
         </section>
         <hr>
         <h3 class="title">100 Most Recent Images</h3>

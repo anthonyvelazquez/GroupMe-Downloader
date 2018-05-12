@@ -35,6 +35,8 @@ export class AppComponent {
   BulkImageLinks = [];
   dtOptions: DataTables.Settings = {};
   dtTrigger: Subject<any> = new Subject();
+  FavoriteImage: string;
+  FavoriteImageCount: number = 0;
   
   constructor(private http: Http, private ref: ChangeDetectorRef) {}
 
@@ -99,8 +101,16 @@ export class AppComponent {
       {
         for(var i=0; i<ImageData.length;i++)
         {
-          this.BulkImageLinks = [...this.BulkImageLinks, ImageData[i]['attachments'][0]['url']]
+          this.BulkImageLinks = [...this.BulkImageLinks, ImageData[i]]
+          console.log(ImageData[i].favorited_by.length)
+          if(ImageData[i].favorited_by.length > this.FavoriteImageCount)
+          {
+            this.FavoriteImage = ImageData[i].attachments[0].url;
+            this.FavoriteImageCount = ImageData[i].favorited_by.length;
+          }
+
         }
+        console.log(this.BulkImageLinks[1])
         this.before = ImageData[ImageData.length - 1]['gallery_ts']
         this.GetAllImages();
       }
